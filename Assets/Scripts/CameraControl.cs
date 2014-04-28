@@ -30,16 +30,7 @@ public class CameraControl : MonoBehaviour {
     /// <summary>
     /// The last place the mouse was when middle mouse button was pressed
     /// </summary>
-    private Vector3 lastMidMousePos = Vector3.zero;
-
-
-    
-
-	// Use this for initialization
-	public void Start () {
-	
-	}
-	
+    private Vector3 lastMidMousePos = Vector3.zero;	
 	// Update is called once per frame
 	public void Update () {
         keyboardMovement();
@@ -116,12 +107,12 @@ public class CameraControl : MonoBehaviour {
             lastMidMousePos = Vector3.zero;
         }
 
+        //Handle zooming
         float scrollAxis = Input.GetAxis("Mouse ScrollWheel");
-
-
         if (scrollAxis != 0)
         {
             Vector3 currPos = transform.position;
+            //Negate scrollaxis so zooming doesn't feel inverted
             currPos.y += zoomSpeed * -scrollAxis;
             transform.position = currPos;
             Debug.Log(transform.position);
@@ -139,6 +130,10 @@ public class CameraControl : MonoBehaviour {
         transform.Translate(direction * Time.deltaTime * cameraSpeed, Space.World);
     }
 
+    /// <summary>
+    /// Handles the clicking and moving of the middlemousebutton
+    /// User to control camera rotation
+    /// </summary>
     private void handleMiddleClick()
     {
         if (lastMidMousePos == Vector3.zero)
