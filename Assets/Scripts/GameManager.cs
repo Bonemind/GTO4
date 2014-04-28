@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour {
     /// <summary>
     /// The board containing all tiles
     /// </summary>
-    private GameObject[,] board;
+    public static GameObject[,] board;
 
 	// Use this for initialization
 	void Start () {
@@ -67,6 +67,8 @@ public class GameManager : MonoBehaviour {
             {
                 Vector3 pos = new Vector3(r * tileDemensions, 0f, c * tileDemensions);
                 GameObject go = (GameObject)Instantiate(getRandomTile(), pos, new Quaternion());
+                go.GetComponent<TileControl>().c = c;
+                go.GetComponent<TileControl>().r = r;
                 board[r, c] = go;
             }
         }
@@ -74,12 +76,12 @@ public class GameManager : MonoBehaviour {
         //We've generated half the map, reverse copy the map to the other half to achieve a symmetrical map
         for (int r = boardDimensions - 1; r > rowCeiling; r--)
         {
-            Debug.Log(boardDimensions - 1 - r);
-            Debug.Log(r);
             for (int c = 0; c < boardDimensions; c++)
             {
                 Vector3 pos = new Vector3(r * tileDemensions, 0f, c * tileDemensions);
                 GameObject go = (GameObject)Instantiate(board[(boardDimensions - 1) - r, c], pos, new Quaternion());
+                go.GetComponent<TileControl>().c = c;
+                go.GetComponent<TileControl>().r = r;
                 board[r, c] = go;
                 
             }
