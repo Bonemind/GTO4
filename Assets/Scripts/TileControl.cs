@@ -50,15 +50,15 @@ public class TileControl : MonoBehaviour {
         {
             return;
         }
-        if (hud.currentObject == null)
+        if (HUD.currentObject == null)
         {
             GameObject go = (GameObject)Instantiate(hud.selectedPrefab,
                 getChildObjectPosition(hud.selectedPrefab),
                 new Quaternion());
 
-            hud.currentObject = go;
+            HUD.currentObject = go;
         }
-        setObjectProperties(ref hud.currentObject);
+        setObjectProperties(ref HUD.currentObject);
     }
 
     /// <summary>
@@ -83,8 +83,9 @@ public class TileControl : MonoBehaviour {
         {
             hud.selectedPrefab = null;
         }
-        occupyingObject = hud.currentObject;
-        hud.currentObject = null;
+        occupyingObject = HUD.currentObject;
+        HUD.currentObject = null;
+        HUD.currState = HUD.ActionState.NO_ACTION;
     }
 
     /// <summary>

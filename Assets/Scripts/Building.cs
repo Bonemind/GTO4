@@ -16,12 +16,12 @@ public class Building : MonoBehaviour {
     {
         Debug.Log(r + "" + c);
         Debug.Log(GameManager.board[r,c]);
+        HUD.currState = HUD.ActionState.SELECTED_BUILDING;
+        HUD.currentObject = gameObject;
     }
 
-    public void OnMouseEnter()
+    public void DrawGUI()
     {
-    }
-    public void OnMouseExit()
-    {
+        GUI.Label(new Rect(0, 0, 300, 300), "Hello, i was selected");
     }
 }
