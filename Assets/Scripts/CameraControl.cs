@@ -115,7 +115,6 @@ public class CameraControl : MonoBehaviour {
             //Negate scrollaxis so zooming doesn't feel inverted
             currPos.y += zoomSpeed * -scrollAxis;
             transform.position = currPos;
-            Debug.Log(transform.position);
         }
     }
 

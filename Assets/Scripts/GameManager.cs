@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour {
     /// <summary>
     /// The tileprefab
     /// </summary>
-    public GameObject tilePrefab;
+    public GameObject[] tilePrefabs;
 
     /// <summary>
     /// The board containing all tiles
@@ -45,7 +45,7 @@ public class GameManager : MonoBehaviour {
             for (int c = 0; c < boardDimensions; c++)
             {
                 Vector3 pos = new Vector3(r * tileDemensions, 0f, c * tileDemensions);
-                GameObject go = (GameObject) Instantiate(tilePrefab, pos, new Quaternion());
+                GameObject go = (GameObject) Instantiate(getRandomTile(), pos, new Quaternion());
                 board[r, c] = go;
             }
         }
@@ -57,24 +57,41 @@ public class GameManager : MonoBehaviour {
     private void generateBoardSymmetrical()
     {
         int rowCeiling = Mathf.CeilToInt(boardDimensions / 2);
+        //Correct the point we will reverse copy our map on for even numbers
+        if (boardDimensions % 2 == 0) {
+            rowCeiling--;
+        }
         for (int r = 0; r <= rowCeiling; r++)
         {
             for (int c = 0; c < boardDimensions; c++)
             {
                 Vector3 pos = new Vector3(r * tileDemensions, 0f, c * tileDemensions);
-                GameObject go = (GameObject)Instantiate(tilePrefab, pos, new Quaternion());
-                board[r, c] = go;
-            }
-        }
-        for (int r = boardDimensions - 1; r > rowCeiling; r--)
-        {
-            for (int c = 0; c < boardDimensions; c++)
-            {
-                Vector3 pos = new Vector3(r * tileDemensions, 0f, c * tileDemensions);
-                GameObject go = (GameObject)Instantiate(tilePrefab, pos, new Quaternion());
+                GameObject go = (GameObject)Instantiate(getRandomTile(), pos, new Quaternion());
                 board[r, c] = go;
             }
         }
 
+        //We've generated half the map, reverse copy the map to the other half to achieve a symmetrical map
+        for (int r = boardDimensions - 1; r > rowCeiling; r--)
+        {
+            Debug.Log(boardDimensions - 1 - r);
+            Debug.Log(r);
+            for (int c = 0; c < boardDimensions; c++)
+            {
+                Vector3 pos = new Vector3(r * tileDemensions, 0f, c * tileDemensions);
+                GameObject go = (GameObject)Instantiate(board[(boardDimensions - 1) - r, c], pos, new Quaternion());
+                board[r, c] = go;
+                
+            }
+        }
+    }
+
+    /// <summary>
+    /// Returns a random tile
+    /// </summary>
+    /// <returns>A tile gameobject</returns>
+    private GameObject getRandomTile()
+    {
+        return tilePrefabs[Random.Range(0, tilePrefabs.Length)];
     }
 }
