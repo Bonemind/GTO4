@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Building : MonoBehaviour {
+public class Building : Photon.MonoBehaviour {
     /// <summary>
     /// The row this building lives in
     /// </summary>
@@ -14,14 +14,12 @@ public class Building : MonoBehaviour {
 
     public void OnMouseDown()
     {
-        Debug.Log(r + "" + c);
-        Debug.Log(GameManager.board[r,c]);
         HUD.currState = HUD.ActionState.SELECTED_BUILDING;
         HUD.currentObject = gameObject;
     }
 
-    public void DrawGUI()
+    public void TurnEnd()
     {
-        GUI.Label(new Rect(0, 0, 300, 300), "Hello, i was selected");
+        print("TurnEnd building");
     }
 }

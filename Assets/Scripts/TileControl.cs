@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class TileControl : MonoBehaviour {
+public class TileControl : Photon.MonoBehaviour
+{
     /// <summary>
     /// The row this tile is on
     /// </summary>
@@ -84,6 +85,7 @@ public class TileControl : MonoBehaviour {
             hud.selectedPrefab = null;
         }
         occupyingObject = HUD.currentObject;
+        occupyingObject.transform.parent = transform;
         HUD.currentObject = null;
         HUD.currState = HUD.ActionState.NO_ACTION;
     }
@@ -107,5 +109,10 @@ public class TileControl : MonoBehaviour {
     private Vector3 getChildObjectPosition(GameObject child)
     {
         return new Vector3(transform.position.x, renderer.bounds.size.y + child.renderer.bounds.size.y / 2, transform.position.z);
+    }
+
+    public void TurnEnd()
+    {
+        print("TurnEnd");
     }
 }

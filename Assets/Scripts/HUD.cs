@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class HUD : MonoBehaviour {
+public class HUD : Photon.MonoBehaviour
+{
     /// <summary>
     /// The actionstates we have within the game
     /// </summary>
@@ -27,10 +28,6 @@ public class HUD : MonoBehaviour {
     /// </summary>
     public static ActionState currState;
 
-    /// <summary>
-    /// The available prefabs (buildings) to place
-    /// </summary>
-    public GameObject[] prefabs;
 
 	// Use this for initialization
 	void Start () {
@@ -39,13 +36,6 @@ public class HUD : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            foreach (GameObject go in prefabs)
-            {
-                Debug.Log(go.name);
-            }
-        }
         switch (currState)
         {
             case ActionState.NO_ACTION:
@@ -70,7 +60,7 @@ public class HUD : MonoBehaviour {
         switch (currState)
         {
             case ActionState.NO_ACTION:
-                drawBuildingsGui();
+                SendMessage("DrawGUI", SendMessageOptions.DontRequireReceiver);
                 break;
             case ActionState.SELECTED_BUILDING:
                 currentObject.SendMessage("DrawGUI", SendMessageOptions.DontRequireReceiver);
@@ -80,45 +70,13 @@ public class HUD : MonoBehaviour {
         }
     }
 
-    private void drawBuildingsGui()
-    {
-        float xStart = Screen.width / 2;
-        float yStart = Screen.height - (0.25f * Screen.height);
-        GUILayout.BeginArea(new Rect(0, Screen.height - 0.1f * Screen.height, Screen.width, 0.1f * Screen.height));
-        GUILayout.FlexibleSpace();
-        {
-            GUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-            for (int i = 0; i < prefabs.Length; i++)
-            {
-                if (GUILayout.Button(prefabs[i].name))
-                {
-                    selectedPrefab = prefabs[i];
-                    currState = ActionState.PLACING_BUILDING;
-                }
-            }
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
-        }
-        GUILayout.FlexibleSpace();
-        GUILayout.EndArea();
-    }
+
 
     /// <summary>
     /// Handles the neutral (no action) state
     /// </summary>
     private void noState()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            selectedPrefab = prefabs[0];
-            currState = ActionState.PLACING_BUILDING;
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            selectedPrefab = prefabs[1];
-            currState = ActionState.PLACING_BUILDING;
-        }
         
     }
 
@@ -148,5 +106,11 @@ public class HUD : MonoBehaviour {
             currentObject = null;
             currState = ActionState.NO_ACTION;
         }
+    }
+
+    public void HUDAction(GameObject prefab)
+    {
+        selectedPrefab = prefab;
+        currState = ActionState.PLACING_BUILDING;
     }
 }
