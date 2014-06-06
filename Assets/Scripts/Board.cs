@@ -27,9 +27,17 @@ public class Board : Photon.MonoBehaviour
 
 	// Use this for initialization
 	void Start () {
-        board = new GameObject[boardDimensions, boardDimensions];
-        generateBoardSymmetrical();
+
 	}
+    public void OnJoinedRoom()
+    {
+        //Generate the board if we are the master client
+        if (PhotonNetwork.isMasterClient)
+        {
+            board = new GameObject[boardDimensions, boardDimensions];
+            generateBoardSymmetrical();
+        }
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -66,7 +74,7 @@ public class Board : Photon.MonoBehaviour
             for (int c = 0; c < boardDimensions; c++)
             {
                 Vector3 pos = new Vector3(r * tileDemensions, 0f, c * tileDemensions);
-                GameObject go = (GameObject)Instantiate(getRandomTile(), pos, new Quaternion());
+                GameObject go = (GameObject)PhotonNetwork.Instantiate(getRandomTile().name, pos, new Quaternion(), 0);
                 go.GetComponent<TileControl>().c = c;
                 go.GetComponent<TileControl>().r = r;
                 board[r, c] = go;
@@ -80,7 +88,7 @@ public class Board : Photon.MonoBehaviour
             for (int c = 0; c < boardDimensions; c++)
             {
                 Vector3 pos = new Vector3(r * tileDemensions, 0f, c * tileDemensions);
-                GameObject go = (GameObject)Instantiate(board[(boardDimensions - 1) - r, c], pos, new Quaternion());
+                GameObject go = (GameObject)PhotonNetwork.Instantiate(board[(boardDimensions - 1) - r, c].name.Replace("(Clone)", ""), pos, new Quaternion(), 0);
                 go.GetComponent<TileControl>().c = c;
                 go.GetComponent<TileControl>().r = r;
                 board[r, c] = go;

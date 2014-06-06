@@ -13,6 +13,8 @@ public class HUD : Photon.MonoBehaviour
         SELECTED_UNIT
     }
 
+    GameResources resources = new GameResources();
+
     /// <summary>
     /// The currently selected object
     /// </summary>
@@ -49,7 +51,12 @@ public class HUD : Photon.MonoBehaviour
                 break;
             default:
                 break;
-        }	
+        }
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            GameObject.Find("GameManager").SendMessage("StartTurn", SendMessageOptions.DontRequireReceiver);
+            IncreaseResources();
+        }
 	}
 
     /// <summary>
@@ -68,6 +75,7 @@ public class HUD : Photon.MonoBehaviour
             default:
                 break;
         }
+        GUI.Label(new Rect(Screen.width * 0.7f, 0f, 400f, 30f), string.Format("RES1: {0} RES2: {1} RES3: {2}", resources.GetResource(GameResources.ResourceTypes.RES1), resources.GetResource(GameResources.ResourceTypes.RES2), resources.GetResource(GameResources.ResourceTypes.RES3)));
     }
 
 
@@ -112,5 +120,15 @@ public class HUD : Photon.MonoBehaviour
     {
         selectedPrefab = prefab;
         currState = ActionState.PLACING_BUILDING;
+    }
+
+    public void IncreaseResources()
+    {
+        resources.TurnStartIncrease();
+    }
+
+    public GameResources GetResources()
+    {
+        return this.resources;
     }
 }

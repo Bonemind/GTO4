@@ -28,7 +28,7 @@ public class TileControl : Photon.MonoBehaviour
     /// </summary>
     public void start()
     {
-        originalColor = transform.renderer.material.color;
+        originalColor = gameObject.renderer.material.color;
     }
 
     /// <summary>
@@ -84,9 +84,28 @@ public class TileControl : Photon.MonoBehaviour
         {
             hud.selectedPrefab = null;
         }
-        occupyingObject = HUD.currentObject;
+        if (HUD.currentObject == null)
+        {
+            return;
+        }
+        Building b = HUD.currentObject.GetComponent<Building>();
+        if (b == null)
+        {
+            return;
+        }
+        if (!b.CheckCost())
+        {
+            return;
+        }
+        b.DecreaseResources();
+        occupyingObject = (GameObject) PhotonNetwork.Instantiate(HUD.currentObject.name.Replace("(Clone)", ""), HUD.currentObject.transform.position, HUD.currentObject.transform.rotation, 0);
+        //occupyingObject = (GameObject) Instantiate(HUD.currentObject, HUD.currentObject.transform.position, HUD.currentObject.transform.rotation);
+        
+        print(HUD.currentObject.name.Replace("(Clone)", ""));
+        print(occupyingObject);
+        //occupyingObject = HUD.currentObject;
         occupyingObject.transform.parent = transform;
-        HUD.currentObject = null;
+        Destroy(HUD.currentObject);
         HUD.currState = HUD.ActionState.NO_ACTION;
     }
 
@@ -114,5 +133,9 @@ public class TileControl : Photon.MonoBehaviour
     public void TurnEnd()
     {
         print("TurnEnd");
+    }
+    public void TurnStart()
+    {
+        print("TurnStart");
     }
 }
