@@ -77,6 +77,13 @@ public class CameraControl : MonoBehaviour {
     /// </summary>
     private void mouseMovement()
     {
+        //Don't do anything if mouse is out of screen
+        Rect screenRect = new Rect(0, 0, Screen.width, Screen.height);
+        if (!screenRect.Contains(Input.mousePosition))
+        {
+            return;
+        }
+
         Vector3 mousePos = Input.mousePosition;
         int w = Screen.width;
         int h = Screen.height;
