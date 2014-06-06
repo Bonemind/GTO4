@@ -54,8 +54,14 @@ public class HUD : Photon.MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.Space))
         {
+            ConsoleLog.Instance.Log("Ended turn");
             GameObject.Find("GameManager").SendMessage("StartTurn", SendMessageOptions.DontRequireReceiver);
             IncreaseResources();
+        }
+        if (Input.GetKeyDown(KeyCode.BackQuote))
+        {
+            print("backtick");
+            Debug.developerConsoleVisible = !Debug.developerConsoleVisible;
         }
 	}
 
