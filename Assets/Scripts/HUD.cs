@@ -30,6 +30,8 @@ public class HUD : Photon.MonoBehaviour
     /// </summary>
     public static ActionState currState;
 
+    public static bool MyTurn = false;
+
 
 	// Use this for initialization
 	void Start () {
@@ -38,6 +40,10 @@ public class HUD : Photon.MonoBehaviour
 	
 	// Update is called once per frame
 	void Update () {
+        if (!MyTurn)
+        {
+            return;
+        }
         switch (currState)
         {
             case ActionState.NO_ACTION:
@@ -58,11 +64,6 @@ public class HUD : Photon.MonoBehaviour
             GameObject.Find("GameManager").SendMessage("StartTurn", SendMessageOptions.DontRequireReceiver);
             IncreaseResources();
         }
-        if (Input.GetKeyDown(KeyCode.BackQuote))
-        {
-            print("backtick");
-            Debug.developerConsoleVisible = !Debug.developerConsoleVisible;
-        }
 	}
 
     /// <summary>
@@ -70,6 +71,11 @@ public class HUD : Photon.MonoBehaviour
     /// </summary>
     void OnGUI()
     {
+        GUI.Label(new Rect(Screen.width * 0.7f, 0f, 400f, 30f), string.Format("RES1: {0} RES2: {1} RES3: {2}", resources.GetResource(GameResources.ResourceTypes.RES1), resources.GetResource(GameResources.ResourceTypes.RES2), resources.GetResource(GameResources.ResourceTypes.RES3)));
+        if (!MyTurn)
+        {
+            return;
+        }
         switch (currState)
         {
             case ActionState.NO_ACTION:
@@ -81,7 +87,7 @@ public class HUD : Photon.MonoBehaviour
             default:
                 break;
         }
-        GUI.Label(new Rect(Screen.width * 0.7f, 0f, 400f, 30f), string.Format("RES1: {0} RES2: {1} RES3: {2}", resources.GetResource(GameResources.ResourceTypes.RES1), resources.GetResource(GameResources.ResourceTypes.RES2), resources.GetResource(GameResources.ResourceTypes.RES3)));
+        
     }
 
 
@@ -122,19 +128,35 @@ public class HUD : Photon.MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Handles clicking a build button
+    /// </summary>
+    /// <param name="prefab"></param>
     public void HUDAction(GameObject prefab)
     {
         selectedPrefab = prefab;
         currState = ActionState.PLACING_BUILDING;
     }
 
+    /// <summary>
+    /// Wraps resources.turnstartincrease
+    /// </summary>
     public void IncreaseResources()
     {
         resources.TurnStartIncrease();
     }
 
+    /// <summary>
+    /// Returns this player's resources object
+    /// </summary>
+    /// <returns></returns>
     public GameResources GetResources()
     {
         return this.resources;
+    }
+
+    public void TurnStart()
+    {
+        this.IncreaseResources();
     }
 }

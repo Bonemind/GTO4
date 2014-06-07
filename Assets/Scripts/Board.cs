@@ -7,7 +7,7 @@ public class Board : Photon.MonoBehaviour
     /// Dimensions of the board
     /// This is both x and z
     /// </summary>
-    public int boardDimensions = 10;
+    public static int boardDimensions = 10;
 
     /// <summary>
     /// The dimensions of the tiles
@@ -27,14 +27,13 @@ public class Board : Photon.MonoBehaviour
 
 	// Use this for initialization
 	void Start () {
-
+        board = new GameObject[boardDimensions, boardDimensions];
 	}
     public void OnJoinedRoom()
     {
         //Generate the board if we are the master client
         if (PhotonNetwork.isMasterClient)
         {
-            board = new GameObject[boardDimensions, boardDimensions];
             generateBoardSymmetrical();
         }
     }
@@ -54,7 +53,7 @@ public class Board : Photon.MonoBehaviour
             {
                 Vector3 pos = new Vector3(r * tileDemensions, 0f, c * tileDemensions);
                 GameObject go = (GameObject) Instantiate(getRandomTile(), pos, new Quaternion());
-                board[r, c] = go;
+                SetObjectProperties(ref go, r, c);
             }
         }
     }
@@ -75,10 +74,7 @@ public class Board : Photon.MonoBehaviour
             {
                 Vector3 pos = new Vector3(r * tileDemensions, 0f, c * tileDemensions);
                 GameObject go = (GameObject)PhotonNetwork.Instantiate(getRandomTile().name, pos, new Quaternion(), 0);
-                go.GetComponent<TileControl>().c = c;
-                go.GetComponent<TileControl>().r = r;
-                board[r, c] = go;
-                go.transform.parent = transform;
+                SetObjectProperties(ref go, r, c);
             }
         }
 
@@ -89,10 +85,7 @@ public class Board : Photon.MonoBehaviour
             {
                 Vector3 pos = new Vector3(r * tileDemensions, 0f, c * tileDemensions);
                 GameObject go = (GameObject)PhotonNetwork.Instantiate(board[(boardDimensions - 1) - r, c].name.Replace("(Clone)", ""), pos, new Quaternion(), 0);
-                go.GetComponent<TileControl>().c = c;
-                go.GetComponent<TileControl>().r = r;
-                board[r, c] = go;
-                go.transform.parent = transform;
+                SetObjectProperties(ref go, r, c);
             }
         }
     }
@@ -104,5 +97,12 @@ public class Board : Photon.MonoBehaviour
     private GameObject getRandomTile()
     {
         return tilePrefabs[Random.Range(0, tilePrefabs.Length)];
+    }
+
+    private void SetObjectProperties(ref GameObject go, int r, int c)
+    {
+        go.GetComponent<BoardLocation>().SetLocation(r, c);
+        board[r, c] = go;
+        go.transform.parent = transform;
     }
 }

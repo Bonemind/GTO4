@@ -18,6 +18,10 @@ public class ConsoleCommandsRepository {
   }
   public ConsoleCommandsRepository() {
     repository = new Dictionary<string, ConsoleCommandCallback>();
+    this.RegisterCommand("Help", ListCommands);
+    this.RegisterCommand("help", ListCommands);
+    this.RegisterCommand("List", ListCommands);
+    this.RegisterCommand("list", ListCommands);
   }
 
   public void RegisterCommand(string command, ConsoleCommandCallback callback) {
@@ -34,5 +38,15 @@ public class ConsoleCommandsRepository {
     } else {
       return "Command not found";
     } 
+  }
+  public string ListCommands(params string[] args)
+  {
+      string ret = "";
+      ret = string.Format("Commands found: {0}\r\n", repository.Count);
+      foreach (KeyValuePair<string, ConsoleCommandCallback> command in repository)
+      {
+          ret += command.Key + "\r\n";
+      }
+      return ret;
   }
 }

@@ -4,16 +4,6 @@ using System.Collections;
 public class TileControl : Photon.MonoBehaviour
 {
     /// <summary>
-    /// The row this tile is on
-    /// </summary>
-    public int r;
-
-    /// <summary>
-    /// The column this tile is on
-    /// </summary>
-    public int c;
-
-    /// <summary>
     /// The object currntly occupying this tile
     /// </summary>
     public GameObject occupyingObject = null;
@@ -22,13 +12,17 @@ public class TileControl : Photon.MonoBehaviour
     /// TODO: Remove
     /// </summary>
     private Color originalColor;
+    private BoardLocation boardLocation;
+
+
 
     /// <summary>
     /// Used for intialization
     /// </summary>
-    public void start()
+    public void Start()
     {
         originalColor = gameObject.renderer.material.color;
+        boardLocation = gameObject.GetComponent<BoardLocation>();
     }
 
     /// <summary>
@@ -95,16 +89,14 @@ public class TileControl : Photon.MonoBehaviour
         }
         if (!b.CheckCost())
         {
+            Destroy(HUD.currentObject);
             return;
         }
         b.DecreaseResources();
         occupyingObject = (GameObject) PhotonNetwork.Instantiate(HUD.currentObject.name.Replace("(Clone)", ""), HUD.currentObject.transform.position, HUD.currentObject.transform.rotation, 0);
-        //occupyingObject = (GameObject) Instantiate(HUD.currentObject, HUD.currentObject.transform.position, HUD.currentObject.transform.rotation);
-        
-        print(HUD.currentObject.name.Replace("(Clone)", ""));
-        print(occupyingObject);
-        //occupyingObject = HUD.currentObject;
         occupyingObject.transform.parent = transform;
+        setObjectProperties(ref occupyingObject);
+        occupyingObject.GetComponent<BoardLocation>().SetLocation(boardLocation.row, boardLocation.column);
         Destroy(HUD.currentObject);
         HUD.currState = HUD.ActionState.NO_ACTION;
     }
@@ -116,8 +108,6 @@ public class TileControl : Photon.MonoBehaviour
     private void setObjectProperties(ref GameObject go)
     {
         go.transform.position = getChildObjectPosition(go);
-        go.GetComponent<Building>().c = c;
-        go.GetComponent<Building>().r = r;
     }
 
     /// <summary>
@@ -130,10 +120,17 @@ public class TileControl : Photon.MonoBehaviour
         return new Vector3(transform.position.x, renderer.bounds.size.y + child.renderer.bounds.size.y / 2, transform.position.z);
     }
 
+    /// <summary>
+    /// Method that is called when a turn ends
+    /// </summary>
     public void TurnEnd()
     {
         print("TurnEnd");
     }
+
+    /// <summary>
+    /// Method called when a turn starts
+    /// </summary>
     public void TurnStart()
     {
         print("TurnStart");
