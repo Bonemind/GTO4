@@ -13,6 +13,8 @@ public class TileControl : Photon.MonoBehaviour
     /// </summary>
     private Color originalColor;
     private BoardLocation boardLocation;
+    private float originalHeight;
+    private bool highlighted = false;
 
     /// <summary>
     /// Used for intialization
@@ -21,6 +23,7 @@ public class TileControl : Photon.MonoBehaviour
     {
         originalColor = gameObject.renderer.material.color;
         boardLocation = gameObject.GetComponent<BoardLocation>();
+        originalHeight = transform.position.y;
     }
 
     /// <summary>
@@ -30,75 +33,13 @@ public class TileControl : Photon.MonoBehaviour
     public void OnMouseEnter()
     {
         transform.renderer.material.color = Color.cyan;
-        /*
-        if (occupyingObject != null)
-        {
-            return;
-        }
-        
-        HUD hud = Camera.main.GetComponent<HUD>();
-        if (hud.selectedPrefab == null)
-        {
-            return;
-        }
-        if (hud.selectedPrefab.GetComponent<Building>() == null)
-        {
-            return;
-        }
-        if (HUD.currentObject == null)
-        {
-            GameObject go = (GameObject)Instantiate(hud.selectedPrefab,
-                getChildObjectPosition(hud.selectedPrefab),
-                new Quaternion());
-
-            HUD.currentObject = go;
-        }
-        setObjectProperties(HUD.currentObject);*/
     }
-
     /// <summary>
     /// Handles the exiting of the collision zone of this tile
     /// </summary>
     public void OnMouseExit()
     {
         transform.renderer.material.color = originalColor;
-    }
-
-    /// <summary>
-    /// Tries to place the selected building
-    /// </summary>
-    public void OaaanMouseDown()
-    {
-        if (occupyingObject != null)
-        {
-            return;
-        }
-        HUD hud = Camera.main.GetComponent<HUD>();
-        if (!Input.GetKey(KeyCode.LeftShift))
-        {
-            hud.selectedPrefab = null;
-        }
-        if (HUD.currentObject == null)
-        {
-            return;
-        }
-        Building b = HUD.currentObject.GetComponent<Building>();
-        if (b == null)
-        {
-            return;
-        }
-        if (!b.CheckCost())
-        {
-            Destroy(HUD.currentObject);
-            return;
-        }
-        b.DecreaseResources();
-        occupyingObject = (GameObject) PhotonNetwork.Instantiate(HUD.currentObject.name.Replace("(Clone)", ""), HUD.currentObject.transform.position, HUD.currentObject.transform.rotation, 0);
-        occupyingObject.transform.parent = transform;
-        setObjectProperties(occupyingObject);
-        occupyingObject.GetComponent<BoardLocation>().SetLocation(boardLocation.location.row, boardLocation.location.column);
-        Destroy(HUD.currentObject);
-        HUD.currState = HUD.ActionState.NO_ACTION;
     }
 
     /// <summary>
@@ -141,5 +82,25 @@ public class TileControl : Photon.MonoBehaviour
         this.setObjectProperties(go);
         this.occupyingObject = go;
         go.transform.parent = gameObject.transform.parent;
+    }
+
+    public void Highlight()
+    {
+        if (highlighted)
+        {
+            return;
+        }
+        Vector3 pos = transform.position;
+        pos.y += 0.5f;
+        this.transform.position = pos;
+        highlighted = true;
+    }
+
+    public void UnHighlight()
+    {
+        Vector3 pos = transform.position;
+        pos.y = originalHeight;
+        this.transform.position = pos;
+        highlighted = false;
     }
 }

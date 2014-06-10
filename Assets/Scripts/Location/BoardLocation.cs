@@ -62,7 +62,7 @@ public class BoardLocation : Photon.MonoBehaviour {
     {
         if (gameObject.tag != "tile")
         {
-            ConsoleLog.Instance.Log("Synclocation");
+            Board.GetTileControlFromLocation(location).occupyingObject = null;
         }
         location.row = row;
         location.column = column;
