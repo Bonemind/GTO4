@@ -38,7 +38,7 @@ public class GameManager : Photon.MonoBehaviour {
     {
         currPlayerIndex = (currPlayerIndex + 1) % players.Length;
 
-        photonView.RPC("StartTurn", PhotonTargets.All, currPlayerIndex + 1);
+        photonView.RPC("StartTurn", PhotonTargets.All, players[currPlayerIndex].ID);
     }
 
     /// <summary>
@@ -48,11 +48,15 @@ public class GameManager : Photon.MonoBehaviour {
     public void StartTurn(int playerId)
     {
         //A turn is starting, this means a turn has just ended, inform all tiles of that first
-        BroadcastMessage("TurnEnd", SendMessageOptions.DontRequireReceiver);
+        //BroadcastMessage("TurnEnd", SendMessageOptions.DontRequireReceiver);
         if (PhotonNetwork.player.ID == playerId)
         {
             HUD.MyTurn = true;
-            BroadcastMessage("TurnStart", SendMessageOptions.DontRequireReceiver);
+            //BroadcastMessage("TurnStart", SendMessageOptions.DontRequireReceiver);
+            foreach (GameObject go in GameObject.FindGameObjectsWithTag("placeable"))
+            {
+                go.SendMessage("TurnStart", SendMessageOptions.DontRequireReceiver);
+            }
             hud.TurnStart();
         }
         else

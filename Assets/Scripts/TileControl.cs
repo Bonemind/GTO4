@@ -14,8 +14,6 @@ public class TileControl : Photon.MonoBehaviour
     private Color originalColor;
     private BoardLocation boardLocation;
 
-
-
     /// <summary>
     /// Used for intialization
     /// </summary>
@@ -31,11 +29,13 @@ public class TileControl : Photon.MonoBehaviour
     /// </summary>
     public void OnMouseEnter()
     {
+        transform.renderer.material.color = Color.cyan;
+        /*
         if (occupyingObject != null)
         {
             return;
         }
-        transform.renderer.material.color = Color.cyan;
+        
         HUD hud = Camera.main.GetComponent<HUD>();
         if (hud.selectedPrefab == null)
         {
@@ -53,7 +53,7 @@ public class TileControl : Photon.MonoBehaviour
 
             HUD.currentObject = go;
         }
-        setObjectProperties(ref HUD.currentObject);
+        setObjectProperties(HUD.currentObject);*/
     }
 
     /// <summary>
@@ -67,7 +67,7 @@ public class TileControl : Photon.MonoBehaviour
     /// <summary>
     /// Tries to place the selected building
     /// </summary>
-    public void OnMouseDown()
+    public void OaaanMouseDown()
     {
         if (occupyingObject != null)
         {
@@ -95,8 +95,8 @@ public class TileControl : Photon.MonoBehaviour
         b.DecreaseResources();
         occupyingObject = (GameObject) PhotonNetwork.Instantiate(HUD.currentObject.name.Replace("(Clone)", ""), HUD.currentObject.transform.position, HUD.currentObject.transform.rotation, 0);
         occupyingObject.transform.parent = transform;
-        setObjectProperties(ref occupyingObject);
-        occupyingObject.GetComponent<BoardLocation>().SetLocation(boardLocation.row, boardLocation.column);
+        setObjectProperties(occupyingObject);
+        occupyingObject.GetComponent<BoardLocation>().SetLocation(boardLocation.location.row, boardLocation.location.column);
         Destroy(HUD.currentObject);
         HUD.currState = HUD.ActionState.NO_ACTION;
     }
@@ -105,7 +105,7 @@ public class TileControl : Photon.MonoBehaviour
     /// Sets the properties of the passed object to the correct location
     /// </summary>
     /// <param name="go">The gameobject to set the properties of</param>
-    private void setObjectProperties(ref GameObject go)
+    public void setObjectProperties(GameObject go)
     {
         go.transform.position = getChildObjectPosition(go);
     }
@@ -134,5 +134,12 @@ public class TileControl : Photon.MonoBehaviour
     public void TurnStart()
     {
         print("TurnStart");
+    }
+
+    public void SetOccupyingObject(GameObject go)
+    {
+        this.setObjectProperties(go);
+        this.occupyingObject = go;
+        go.transform.parent = gameObject.transform.parent;
     }
 }

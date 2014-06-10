@@ -2,9 +2,27 @@
 using System.Collections;
 
 public class BoardLocation : Photon.MonoBehaviour {
-    public int row = 0;
-    public int column = 0;
+    /// <summary>
+    /// The location this gameobject lives in
+    /// </summary>
+    public LocationStruct location;
 
+    /// <summary>
+    /// The column this gameobject lives in
+    /// </summary>
+    private GameObject mainCamera;
+
+    /// <summary>
+    /// Initialization
+    /// </summary>
+    public void Start()
+    {
+        mainCamera = Camera.main.gameObject;
+    }
+
+    /// <summary>
+    /// Registers this object with it's parent
+    /// </summary>
     public void RegisterParent()
     {
         string tag = gameObject.tag;
@@ -12,22 +30,33 @@ public class BoardLocation : Photon.MonoBehaviour {
         {
             case "tile":
                 gameObject.transform.parent = GameObject.Find("GameManager").transform;
-                Board.board[row, column] = gameObject;
+                Board.board[location.row, location.column] = gameObject;
                 break;
             case "placeable":
-                gameObject.transform.parent = Board.board[this.row, this.column].transform;
-                Board.board[this.row, this.column].GetComponent<TileControl>().occupyingObject = gameObject;
+                gameObject.transform.parent = Board.board[location.row, location.column].transform;
+                Board.board[location.row, location.column].GetComponent<TileControl>().occupyingObject = gameObject;
                 break;
             default:
                 ConsoleLog.Instance.Log("RegisterParent reached default case for object" + gameObject.name);
                 break;
         }
     }
+
+    /// <summary>
+    /// Broadcasts a new location for this object to all clients
+    /// </summary>
+    /// <param name="row">The new row</param>
+    /// <param name="column">The new column</param>
     public void SetLocation(int row, int column)
     {
         photonView.RPC("SyncLocation", PhotonTargets.AllBuffered, row, column);
     }
 
+    /// <summary>
+    /// Actually sets the row and column for this object
+    /// </summary>
+    /// <param name="row">The row to set</param>
+    /// <param name="column">The column to set</param>
     [RPC]
     public void SyncLocation(int row, int column)
     {
@@ -35,13 +64,16 @@ public class BoardLocation : Photon.MonoBehaviour {
         {
             ConsoleLog.Instance.Log("Synclocation");
         }
-        this.row = row;
-        this.column = column;
+        location.row = row;
+        location.column = column;
         RegisterParent();
     }
 
-    public void OnMouseDown()
+    /// <summary>
+    /// Informs our hud that this object was mouseovered
+    /// </summary>
+    public void OnMouseOver()
     {
-        ConsoleLog.Instance.Log(string.Format("Tile {0} - {1}", row, column));
+        mainCamera.SendMessage("MouseOver", location, SendMessageOptions.DontRequireReceiver);
     }
 }

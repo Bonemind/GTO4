@@ -24,6 +24,7 @@ public class CommandConsoleRouter : MonoBehaviour {
         repo.RegisterCommand("Network.ListPlayers", ListPlayers);
         repo.RegisterCommand("Network.ConnectionStatus", ConnectionStatus);
         repo.RegisterCommand("Game.PrintBoard", PrintBoard);
+        repo.RegisterCommand("Game.PrintStatus", PrintStatus);
 	}
 
     /// <summary>
@@ -126,6 +127,19 @@ public class CommandConsoleRouter : MonoBehaviour {
             line += "\r\n";
             ret += line;
         }
+        return ret;
+    }
+
+    public string PrintStatus(params string[] args)
+    {
+        string ret = "";
+        ret = "Status:" + HUD.currState.ToString() + "\n";
+        string currObject = "null";
+        if (HUD.currentObject != null)
+        {
+            currObject = HUD.currentObject.ToString();
+        }
+        ret += "currObject:" + currObject;
         return ret;
     }
 }
