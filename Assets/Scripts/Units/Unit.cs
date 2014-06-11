@@ -13,6 +13,11 @@ public class Unit : Photon.MonoBehaviour {
     public int AttackCount = 1;
 
     /// <summary>
+    /// The range this unit can attack in
+    /// </summary>
+    public int AttackRange = 1;
+
+    /// <summary>
     /// The number of turns it takes to build this unit
     /// </summary>
     public int BuildTurns = 3;
@@ -47,19 +52,41 @@ public class Unit : Photon.MonoBehaviour {
     /// </summary>
     private int attacksLeft;
 
+    /// <summary>
+    /// The location of the current object
+    /// </summary>
     private BoardLocation boardLocation;
 
+    /// <summary>
+    /// The movement speed of this object
+    /// </summary>
     public float MovementSpeed = 2f;
 
+    /// <summary>
+    /// The list of walkable tiles
+    /// </summary>
     private List<GameObject> walkableTiles;
+
+    /// <summary>
+    /// The list of tiles this unit can attack
+    /// </summary>
+    private List<GameObject> attackableTiles;
+
+    /// <summary>
+    /// The path left to travel by this unit
+    /// </summary>
+    private List<GameObject> currentPath;
 
 	/// <summary>
 	/// Initialization
 	/// </summary>
 	public void Start () {
         stepsLeft = StepCount;
+        attacksLeft = AttackCount;
         boardLocation = gameObject.GetComponent<BoardLocation>();
         walkableTiles = new List<GameObject>();
+        attackableTiles = new List<GameObject>();
+        currentPath = new List<GameObject>();
 	}
 
     /// <summary>
@@ -70,12 +97,28 @@ public class Unit : Photon.MonoBehaviour {
         if (photonView.isMine)
         {
             stepsLeft = StepCount;
+            attacksLeft = AttackCount;
         }
     }
 
+    /// <summary>
+    /// Update method
+    /// </summary>
     public void Update()
     {
-        Vector3 target = Board.GetTileFromLocation(boardLocation.location).transform.position;
+        if (currentPath.Count == 0)
+        {
+            return;
+        }
+        if (currentPath[0].transform.position == gameObject.transform.position)
+        {
+            currentPath.Remove(currentPath[0]);
+        }
+        if (currentPath.Count == 0)
+        {
+            return;
+        }
+        Vector3 target = currentPath[0].transform.position;
         float step = MovementSpeed * Time.deltaTime;
         transform.position = Vector3.MoveTowards(transform.position, target, step);
     }
@@ -113,11 +156,25 @@ public class Unit : Photon.MonoBehaviour {
     {
         if (walkableTiles.Contains(Board.GetTileFromLocation(location)))
         {
+            currentPath = Board.GetPathToLocation(boardLocation.location, location, stepsLeft);
             boardLocation.SetLocation(location.row, location.column);
-            stepsLeft = 0;
+            stepsLeft -= currentPath.Count;
             SetWalkableTilesHighlight(false);
             UpdateWalkableObjects();
         }
+        else if (attackableTiles.Contains(Board.GetTileFromLocation(location)))
+        {
+            TileControl target = Board.GetTileControlFromLocation(location);
+            GameObject targetObject = target.occupyingObject;
+            if (targetObject == null)
+            {
+                return;
+            }
+            targetObject.SendMessage("Damage", Damage, SendMessageOptions.DontRequireReceiver);
+            Debug.Log("Sentmessage");
+            attacksLeft--;
+        }
+        
     }
 
     /// <summary>
@@ -129,6 +186,7 @@ public class Unit : Photon.MonoBehaviour {
         if (selected)
         {
             UpdateWalkableObjects();
+            UpdateAttackableObjects();
             SetWalkableTilesHighlight(true);
         }
         else
@@ -141,6 +199,12 @@ public class Unit : Photon.MonoBehaviour {
     {
         walkableTiles.Clear();
         Board.GetWalkableTiles(walkableTiles, Board.board[boardLocation.location.row, boardLocation.location.column], stepsLeft);
+    }
+
+    private void UpdateAttackableObjects()
+    {
+        attackableTiles.Clear();
+        Board.GetAttackableTiles(attackableTiles, Board.board[boardLocation.location.row, boardLocation.location.column], stepsLeft);
     }
 
     private void SetWalkableTilesHighlight(bool highlight)

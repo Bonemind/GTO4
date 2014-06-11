@@ -12,7 +12,9 @@ public class TileControl : Photon.MonoBehaviour
     /// TODO: Remove
     /// </summary>
     private Color originalColor;
+    #pragma warning disable 0414
     private BoardLocation boardLocation;
+    #pragma warning restore 0414
     private float originalHeight;
     private bool highlighted = false;
 

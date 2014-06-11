@@ -312,10 +312,6 @@ public class HUD : Photon.MonoBehaviour
             currentObject = (GameObject)Instantiate(selectedPrefab, Vector3.zero, new Quaternion(0f, 0f, 0f, 0f));
             currentObject.collider.enabled = false;
         }
-        else
-        {
-            Debug.Log("currentObject != null");
-        }
         TileControl tc = Board.board[location.row, location.column].GetComponent<TileControl>();
         if (tc.occupyingObject != null)
         {
@@ -335,12 +331,17 @@ public class HUD : Photon.MonoBehaviour
         {
             return;
         }
-        if (!building.CheckCost())
+        ResourceCost resCost = currentObject.GetComponent<ResourceCost>();
+        if (resCost == null)
+        {
+            Debug.Log(string.Format("Buildable object {0} does not have a resource cost script", currentObject.name));
+        }
+        if (!resCost.CheckCost())
         {
             return;
         }
+        resCost.DecreaseResources();
         selectedPrefab = null;
-        building.DecreaseResources();
         GameObject tile = Board.board[location.row, location.column];
         TileControl tc = tile.GetComponent<TileControl>();
         GameObject actualObject = (GameObject) PhotonNetwork.Instantiate(Utils.RemoveClone(currentObject.name), currentObject.transform.position, currentObject.transform.rotation, 0);
@@ -348,9 +349,6 @@ public class HUD : Photon.MonoBehaviour
         Destroy(HUD.currentObject);
         currentObject = null;
 
-
-        Debug.Log(actualObject);
-        Debug.Log(currentObject);
         tc.SetOccupyingObject(actualObject);
         actualObject.GetComponent<BoardLocation>().SetLocation(location.row, location.column);
 

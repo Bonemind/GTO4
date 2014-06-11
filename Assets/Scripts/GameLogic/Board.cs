@@ -113,6 +113,7 @@ public class Board : Photon.MonoBehaviour
     /// </summary>
     /// <param name="location">The location to start at</param>
     /// <returns>The closest free tile</returns>
+    #pragma warning disable 0219
     public static LocationStruct? GetClosestFreeTile(LocationStruct location)
     {
         int range = 1;
@@ -122,7 +123,6 @@ public class Board : Photon.MonoBehaviour
         while (range < boardDimensions)
         {
             List<GameObject> neighbourTiles = Board.neighbourTiles(location, range);
-            Debug.Log("Neigbourtiles" + neighbourTiles.Count);
             foreach (GameObject go in neighbourTiles)
             {
                 TileControl tc = go.GetComponent<TileControl>();
@@ -138,6 +138,7 @@ public class Board : Photon.MonoBehaviour
         }
         return null;
     }
+    #pragma warning restore 0219
 
     /// <summary>
     /// Gets the tilecontrol blonging to the tile of which the location is passed
@@ -149,6 +150,11 @@ public class Board : Photon.MonoBehaviour
         return board[location.row, location.column].GetComponent<TileControl>();
     }
 
+    /// <summary>
+    /// Gets the tile that lives on the current location
+    /// </summary>
+    /// <param name="location">The location of the tile</param>
+    /// <returns>The tile</returns>
     public static GameObject GetTileFromLocation(LocationStruct location)
     {
         return board[location.row, location.column];
@@ -241,7 +247,7 @@ public class Board : Photon.MonoBehaviour
     /// </summary>
     /// <param name="location">The location of the queried tile</param>
     /// <returns>List of adjecant tiles</returns>
-    public static List<GameObject> neighbourTilesStrait(LocationStruct location)
+    public static List<GameObject> neighbourTilesStrait(LocationStruct location, bool ShouldbeFree)
     {
         List<GameObject> tiles = new List<GameObject>();
         int row = location.row;
@@ -262,34 +268,121 @@ public class Board : Photon.MonoBehaviour
         {
             tiles.Add(board[row, column - 1]);
         }
+        if (ShouldbeFree)
+        {
+            for (int i = tiles.Count - 1; i >= 0; i--)
+            {
+                if (tiles[i].GetComponent<TileControl>().occupyingObject != null)
+                {
+                    tiles.Remove(tiles[i]);
+                }
+            }
+        }
         return tiles;
     }
 
-    public static List<GameObject> GetWalkableTiles(List<GameObject> currentTiles, GameObject currTile, int stepsleft)
+    /// <summary>
+    /// Returns all tiles in a range block
+    /// </summary>
+    /// <param name="currentTiles">The list of tiles already in the range</param>
+    /// <param name="currTile">The location we want the neighbours from</param>
+    /// <param name="stepsleft">The number of steps left</param>
+    /// <param name="ShouldBeFree">Whether the tile should</param>
+    /// <returns>List of all gameobjects in range from the starting location</returns>
+    public static List<GameObject> GetTilesInRange(List<GameObject> currentTiles, GameObject currTile, int stepsleft, bool ShouldBeFree)
     {
         if (stepsleft <= 0)
         {
             return currentTiles;
         }
         stepsleft--;
-        List<GameObject> adjecantTiles = neighbourTilesStrait(currTile.GetComponent<BoardLocation>().location);
+        List<GameObject> adjecantTiles = neighbourTilesStrait(currTile.GetComponent<BoardLocation>().location, false);
         foreach (GameObject tile in adjecantTiles)
         {
-            if (currentTiles.Contains(tile) || tile.GetComponent<TileControl>().occupyingObject != null)
+            if (currentTiles.Contains(tile) || (tile.GetComponent<TileControl>().occupyingObject != null && ShouldBeFree))
             {
                 continue;
             }
             currentTiles.Add(tile);
             if (stepsleft > 0) 
             {
-                GetWalkableTiles(currentTiles, tile, stepsleft);
+                GetTilesInRange(currentTiles, tile, stepsleft, ShouldBeFree);
             }
         }
         return currentTiles;
     }
 
+    /// <summary>
+    /// Gets the walkable tiles in a range from the current tile
+    /// </summary>
+    /// <param name="currentTiles">The list of tiles that were already walkable</param>
+    /// <param name="currTile">The current tile</param>
+    /// <param name="stepsleft">The number of steps left</param>
+    /// <returns>List of walkable gameobjects</returns>
+    public static List<GameObject> GetWalkableTiles(List<GameObject> currentTiles, GameObject currTile, int stepsleft)
+    {
+        return GetTilesInRange(currentTiles, currTile, stepsleft, true);
+    }
+
+    /// <summary>
+    /// Gets all attackable tiles in range
+    /// </summary>
+    /// <param name="currentTiles">The tiles already found as attackable</param>
+    /// <param name="currTile">The tile to start looking from</param>
+    /// <param name="stepsleft">The number of steps left</param>
+    /// <returns>A list of all attackable tiles in a range</returns>
+    public static List<GameObject> GetAttackableTiles(List<GameObject> currentTiles, GameObject currTile, int stepsleft)
+    {
+        return GetTilesInRange(currentTiles, currTile, stepsleft, false);
+    }
+
+    /// <summary>
+    /// Gets the actual position of a tile from a locationstruct
+    /// </summary>
+    /// <param name="location">The locationstruct</param>
+    /// <returns>Vector3 the location</returns>
     public static Vector3 GetTileLocation(LocationStruct location)
     {
         return board[location.row, location.column].gameObject.transform.position;
+    }
+
+    /// <summary>
+    /// Finds a path from a location, to a location, within a number of steps
+    /// </summary>
+    /// <param name="fromLocation">The location to start from</param>
+    /// <param name="toLocation">The location to end up at</param>
+    /// <param name="stepsLeft">The numver of steps left</param>
+    /// <returns>A list of gameobjects in the path</returns>
+    public static List<GameObject> GetPathToLocation(LocationStruct fromLocation, LocationStruct toLocation, int stepsLeft) 
+    {
+        List<GameObject> tiles = new List<GameObject>();
+        if (stepsLeft < 0)
+        {
+            return tiles;
+        }
+        else if (fromLocation.row == toLocation.row && fromLocation.column == toLocation.column)
+        {
+            GameObject currTile = Board.GetTileFromLocation(fromLocation);
+            tiles.Add(currTile);
+        }
+        else
+        {
+            List<GameObject> neighbourTiles = Board.neighbourTilesStrait(fromLocation, true);
+            foreach (GameObject neighbour in neighbourTiles)
+            {
+                List<GameObject> retTiles = GetPathToLocation(neighbour.GetComponent<BoardLocation>().location, toLocation, stepsLeft - 1);
+                if (retTiles.Count > 0)
+                {
+                    tiles.Add(Board.GetTileFromLocation(fromLocation));
+                    foreach (GameObject currTile in retTiles)
+                    {
+                        tiles.Add(currTile);
+                    }
+                    break;
+                }
+            }
+        }
+        
+        return tiles;
     }
 }

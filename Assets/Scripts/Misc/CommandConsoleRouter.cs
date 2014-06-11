@@ -83,10 +83,10 @@ public class CommandConsoleRouter : MonoBehaviour {
         HUD hud = Camera.main.GetComponent<HUD>();
         GameResources resources = hud.GetResources();
         GameObject currentObject = HUD.currentObject;
-        Building building = currentObject.GetComponent<Building>();
-        string ret = string.Format("Costs: {0} {1} {2}\r\n", building.CostRes1, building.CostRes2, building.CostRes3);
+        ResourceCost resCost = currentObject.GetComponent<ResourceCost>();
+        string ret = string.Format("Costs: {0} {1} {2}\r\n", resCost.CostRes1, resCost.CostRes2, resCost.CostRes3);
         ret += string.Format("Current resources: {0} {1} {2}\r\n", resources.GetResource(GameResources.ResourceTypes.RES1), resources.GetResource(GameResources.ResourceTypes.RES2), resources.GetResource(GameResources.ResourceTypes.RES3));
-        ret += string.Format("Output of checkcost: {0}\r\n", building.CheckCost());
+        ret += string.Format("Output of checkcost: {0}\r\n", resCost.CheckCost());
         return ret;
     }
 

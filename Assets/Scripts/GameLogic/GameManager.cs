@@ -38,9 +38,6 @@ public class GameManager : Photon.MonoBehaviour {
         {
             currPlayerIndex = (currPlayerIndex + 1) % players.Length;
             photonView.RPC("StartTurn", PhotonTargets.All, players[currPlayerIndex].ID);
-            Debug.Log(currPlayerIndex);
-            Debug.Log((currPlayerIndex + 1) % players.Length);
-            Debug.Log(players.Length);
         }
         else
         {

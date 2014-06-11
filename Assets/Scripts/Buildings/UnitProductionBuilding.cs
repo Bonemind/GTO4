@@ -2,32 +2,56 @@
 using System.Collections.Generic;
 
 public class UnitProductionBuilding : Building{
+    /// <summary>
+    /// List containing the current build queue
+    /// </summary>
     private List<ProductionStruct> buildQueue = new List<ProductionStruct>();
+
+    /// <summary>
+    /// Contains the current location
+    /// </summary>
     private LocationStruct location;
 
+    /// <summary>
+    /// Initializes this object
+    /// </summary>
     public override void Initialize()
     {
         location = gameObject.GetComponent<BoardLocation>().location;
-        //void
     }
 
+    /// <summary>
+    /// Responds to a hud action
+    /// </summary>
+    /// <param name="go">The gameobject that was clicked</param>
     public override void HUDAction(GameObject go)
     {
+        ResourceCost resCost = go.GetComponent<ResourceCost>();
+        if (resCost == null)
+        {
+            Debug.LogError(string.Format("Buildable object {0} does not have a resource cost script", go.name));
+        }
+        if (!resCost.CheckCost())
+        {
+            return;
+        }
+        resCost.DecreaseResources();
         ProductionStruct ps = new ProductionStruct();
         ps.productionObject = go;
         ps.turnsLeft = go.GetComponent<Unit>().BuildTurns;
-        Debug.Log("HUDACtion");
         buildQueue.Add(ps);
     }
 
+    /// <summary>
+    /// Handles a turn start
+    /// </summary>
     public override void HandleTurnStart()
     {
-        Debug.Log("turnstart");
         for (int i = buildQueue.Count - 1; i >= 0; i-- )
         {
             if (buildQueue[i].turnsLeft <= 0)
             {
-                Debug.Log("produced");
+     
                 LocationStruct? freeTileNullable = Board.GetClosestFreeTile(location);
                 if (freeTileNullable == null)
                 {
@@ -44,7 +68,6 @@ public class UnitProductionBuilding : Building{
             else
             {
                 buildQueue[i].turnsLeft--;
-                Debug.Log("turnsleft-");
             }
 
         }
