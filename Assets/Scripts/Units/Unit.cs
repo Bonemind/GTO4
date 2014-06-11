@@ -159,8 +159,6 @@ public class Unit : Photon.MonoBehaviour {
             currentPath = Board.GetPathToLocation(boardLocation.location, location, stepsLeft);
             boardLocation.SetLocation(location.row, location.column);
             stepsLeft -= currentPath.Count;
-            SetWalkableTilesHighlight(false);
-            UpdateWalkableObjects();
         }
         else if (attackableTiles.Contains(Board.GetTileFromLocation(location)))
         {
@@ -173,7 +171,10 @@ public class Unit : Photon.MonoBehaviour {
             targetObject.SendMessage("Damage", Damage, SendMessageOptions.DontRequireReceiver);
             Debug.Log("Sentmessage");
             attacksLeft--;
+            stepsLeft = 0;
         }
+        SetWalkableTilesHighlight(false);
+        UpdateWalkableObjects();
         
     }
 
