@@ -19,9 +19,22 @@ public class SelectionDrawer : MonoBehaviour {
             GUILayout.FlexibleSpace();
             for (int i = 0; i < prefabs.Length; i++)
             {
-                if (GUILayout.Button(prefabs[i].name))
+                string name = prefabs[i].name;
+                RenderTexture texture;
+                PrefabRenderer.RenderedTextures.TryGetValue(name, out texture);
+                if (texture == null)
                 {
-                    SendMessage("HUDAction", prefabs[i], SendMessageOptions.DontRequireReceiver);
+                    if (GUILayout.Button(name))
+                    {
+                        SendMessage("HUDAction", prefabs[i], SendMessageOptions.DontRequireReceiver);
+                    }
+                }
+                else
+                {
+                    if (GUILayout.Button(texture))
+                    {
+                        SendMessage("HUDAction", prefabs[i], SendMessageOptions.DontRequireReceiver);
+                    }
                 }
             }
             GUILayout.FlexibleSpace();

@@ -32,7 +32,7 @@ public class QueueDrawer : MonoBehaviour
         {
             return;
         }
-        GUILayout.BeginArea(new Rect(Screen.width - 0.1f * Screen.width, 250, Screen.width * 0.1f, 0.6f * Screen.height));
+        GUILayout.BeginArea(new Rect(Screen.width - 0.15f * Screen.width, 250, Screen.width * 0.15f, 0.6f * Screen.height));
         GUILayout.FlexibleSpace();
         {
             GUILayout.BeginVertical();
@@ -40,8 +40,22 @@ public class QueueDrawer : MonoBehaviour
             scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true);
             for (int i = 0; i < Queue.Count; i++)
             {
-                string label = string.Format("Unit: {0} \n Turns left: {1}", Utils.RemoveClone(Queue[i].productionObject.name), Queue[i].turnsLeft);
-                if (GUILayout.Button(label))
+                string name = Utils.RemoveClone(Queue[i].productionObject.name);
+                string label = string.Format("Turns left: {0}", Queue[i].turnsLeft);
+                RenderTexture texture;
+                PrefabRenderer.RenderedTextures.TryGetValue(name, out texture);
+                GUIContent gc;
+                if (texture == null)
+                {
+                    label = string.Format("Unit: {0} \n {1}", name, label);
+                    gc = new GUIContent(label);
+                }
+                else
+                {
+                    gc = new GUIContent(label, texture);
+                }
+                
+                if (GUILayout.Button(gc))
                 {
                     SendMessage("QueueAction", i, SendMessageOptions.DontRequireReceiver);
                 }
