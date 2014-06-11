@@ -39,4 +39,16 @@ public class ResourceCost : Photon.MonoBehaviour {
         res.DecreaseResource(GameResources.ResourceTypes.RES2, CostRes2);
         res.DecreaseResource(GameResources.ResourceTypes.RES3, CostRes3);
     }
+
+    /// <summary>
+    /// Decreases the resources required to build this from the resource pool
+    /// </summary>
+    public void IncreaseResources()
+    {
+        HUD h = Camera.main.GetComponent<HUD>();
+        GameResources res = h.GetResources();
+        res.IncreaseResource(GameResources.ResourceTypes.RES1, CostRes1);
+        res.IncreaseResource(GameResources.ResourceTypes.RES2, CostRes2);
+        res.IncreaseResource(GameResources.ResourceTypes.RES3, CostRes3);
+    }
 }

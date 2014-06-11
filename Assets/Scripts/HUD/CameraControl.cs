@@ -28,6 +28,11 @@ public class CameraControl : MonoBehaviour {
     public float zoomSpeed = 1.5f;
 
     /// <summary>
+    /// Whether to scroll when mouse is close to a border
+    /// </summary>
+    public bool EnableMouseBorderScroll = false;
+
+    /// <summary>
     /// The last place the mouse was when middle mouse button was pressed
     /// </summary>
     private Vector3 lastMidMousePos = Vector3.zero;	
@@ -84,26 +89,6 @@ public class CameraControl : MonoBehaviour {
             return;
         }
 
-        Vector3 mousePos = Input.mousePosition;
-        int w = Screen.width;
-        int h = Screen.height;
-        if (h - mousePos.y <= mouseBorderZonePercentage * h)
-        {
-            normalizeAndMove(transform.forward);
-        }
-        if (mousePos.y <= mouseBorderZonePercentage * h)
-        {
-            normalizeAndMove(-transform.forward);
-        }
-        if (mousePos.x <= mouseBorderZonePercentage * w)
-        {
-            normalizeAndMove(-transform.right);
-        }
-        if (w - mousePos.x <= mouseBorderZonePercentage * w)
-        {
-            normalizeAndMove(transform.right);
-        }
-
         //Handle middle mouse button rotation
         if (Input.GetMouseButton(2))
         {
@@ -122,6 +107,31 @@ public class CameraControl : MonoBehaviour {
             //Negate scrollaxis so zooming doesn't feel inverted
             currPos.y += zoomSpeed * -scrollAxis;
             transform.position = currPos;
+        }
+
+        if (!EnableMouseBorderScroll)
+        {
+            return;
+        }
+
+        Vector3 mousePos = Input.mousePosition;
+        int w = Screen.width;
+        int h = Screen.height;
+        if (h - mousePos.y <= mouseBorderZonePercentage * h)
+        {
+            normalizeAndMove(transform.forward);
+        }
+        if (mousePos.y <= mouseBorderZonePercentage * h)
+        {
+            normalizeAndMove(-transform.forward);
+        }
+        if (mousePos.x <= mouseBorderZonePercentage * w)
+        {
+            normalizeAndMove(-transform.right);
+        }
+        if (w - mousePos.x <= mouseBorderZonePercentage * w)
+        {
+            normalizeAndMove(transform.right);
         }
     }
 

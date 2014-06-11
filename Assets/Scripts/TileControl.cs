@@ -18,6 +18,8 @@ public class TileControl : Photon.MonoBehaviour
     private float originalHeight;
     private bool highlighted = false;
 
+    public TileType TileType;
+
     /// <summary>
     /// Used for intialization
     /// </summary>

@@ -9,6 +9,8 @@ public abstract class Building : Photon.MonoBehaviour {
     BoardLocation boardLocation;
     #pragma warning restore 0414
 
+    public TileType RequiredTileType;
+
     /// <summary>
     /// Initialization
     /// </summary>
@@ -67,6 +69,11 @@ public abstract class Building : Photon.MonoBehaviour {
         
     }
 
+    public bool IsValidTile(LocationStruct location)
+    {
+        TileControl tc = Board.GetTileControlFromLocation(location);
+        return tc.TileType == RequiredTileType || RequiredTileType == TileType.Any;
+    }
     public abstract void HUDAction(GameObject go);
     public abstract void HandleTurnStart();
     public abstract void Initialize();

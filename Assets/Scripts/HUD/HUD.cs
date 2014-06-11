@@ -307,6 +307,10 @@ public class HUD : Photon.MonoBehaviour
         {
             return;
         }
+        if (!selectedPrefab.GetComponent<Building>().IsValidTile(location))
+        {
+            return;
+        }
         if (currentObject == null)
         {
             currentObject = (GameObject)Instantiate(selectedPrefab, Vector3.zero, new Quaternion(0f, 0f, 0f, 0f));

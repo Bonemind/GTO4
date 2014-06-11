@@ -72,4 +72,20 @@ public class UnitProductionBuilding : Building{
 
         }
     }
+
+    public List<ProductionStruct> GetQueue()
+    {
+        return buildQueue;
+    }
+
+    /// <summary>
+    /// Processes an action raised by the queuedrawer script
+    /// </summary>
+    /// <param name="index"></param>
+    public void QueueAction(int index)
+    {
+        ProductionStruct ps = buildQueue[index];
+        ps.productionObject.GetComponent<ResourceCost>().IncreaseResources();
+        buildQueue.Remove(ps);
+    }
 }
